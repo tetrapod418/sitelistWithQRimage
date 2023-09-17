@@ -2,8 +2,6 @@ name: GitHub Actions workflow for get kintone data
 run-name: ${{ github.actor }} is getting data from kintone 🌩
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0-12 * * *'
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
