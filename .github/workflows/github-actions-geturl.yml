@@ -1,25 +1,32 @@
-name: GitHub Actions workflow for get kintone data
-run-name: ${{ github.actor }} is getting data from kintone 🌩
-on:
-  workflow_dispatch:
-jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CheckOut
-        uses: actions/checkout@v3
-      - name: Setup Node.js v18
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Setup environment
-        run: |
-          cd ${{ github.workspace }}/jobs/records-read-job
-          npm ci
-      - name: Run main.ts
-        env: 
-          REPO_TOKEN: ${{ secrets.JNKYKN_PERSONAL_ACCESS_TOKEN }}
-          VIDEO_UPLOAD_APP_TOKEN: ${{ secrets.KINTONE_RECORD_READ_APP_TOKEN }}
-        run: |
-          cd ${{ github.workspace }}/jobs/records-read-job
-          npx ts-node src/main.ts
+'use strict';
+
+const {KintoneRestAPIClient} = require('@kintone/rest-api-client');
+
+(async () => {
+    try {
+      // クライアントの作成
+      const client = new KintoneRestAPIClient({
+        // kintoneのデータ取得先を設定
+        baseUrl: 'https://1lc011kswasj.cybozu.com',
+        auth: {
+          apiToken: process.env.KINTONE_API_TOKEN
+        }
+      });
+  
+      // リクエストパラメータの設定
+      const APP_ID = 2;
+      const query_string = 'ステータス="accepted" order by $id';
+      const params = {
+        app: APP_ID,
+        fields:['$id', 'ステータス', 'title', 'URL', 'descriptions'],
+        query: query_string
+      };
+  
+      // レコードの取得
+      const resp = await client.record.getRecords(params);
+      console.log(resp.records);
+      //return JSON.stringify(resp.records);
+    } catch (err) {
+      console.log(err);
+    }
+  })();
